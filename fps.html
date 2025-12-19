@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>FPS Aim Trainer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #020617;
+      --primary: #38bdf8;
+      --danger: #ef4444;
+      --accent: #22c55e;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #020617, #000);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .app {
+      width: 860px;
+      max-width: 95vw;
+      background: linear-gradient(180deg, #020617, #020617cc);
+      border-radius: 16px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      padding: 20px;
+    }
+
+    h1 { text-align: center; margin: 0 0 12px; font-size: 26px; }
+
+    .top, .stats, .advanced {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    select, button {
+      background: #020617;
+      color: var(--text);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #020617;
+      border: none;
+      font-weight: bold;
+    }
+
+    .stats, .advanced {
+      margin: 8px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 420px;
+      background: radial-gradient(circle at center, #020617, #000);
+      border-radius: 12px;
+      cursor: crosshair;
+    }
+
+    .badge {
+      color: var(--accent);
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>FPS 练枪 / Aim Trainer Pro</h1>
+
+  <div class="top">
+    <select id="difficulty">
+      <option value="easy">简单</option>
+      <option value="medium">中等</option>
+      <option value="hard">困难</option>
+    </select>
+    <select id="mode">
+      <option value="30">30s</option>
+      <option value="60">60s</option>
+      <option value="90">90s</option>
+    </select>
+    <button id="start" class="primary">开始训练</button>
+  </div>
+
+  <div class="stats">
+    <div>⏱ 剩余：<span id="time">0.0</span>s</div>
+    <div>🎯 命中：<span id="hits">0</span></div>
+    <div>❌ 未中：<span id="miss">0</span></div>
+    <div>🔥 连杀：<span id="combo">0</span></div>
+    <div>⭐ 分数：<span id="score">0</span></div>
+  </div>
+
+  <canvas id="game"></canvas>
+
+  <div class="advanced">
+    <div>命中率：<span id="acc">0</span>%</div>
+    <div>APM：<span id="apm">0</span></div>
+    <div>平均反应：<span id="rt">0</span> ms</div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+canvas.width = canvas.offsetWidth;
+canvas.height = canvas.offsetHeight;
+
+let target = null;
+let running = false;
+let totalTime = 0;
+let remaining = 0;
+let hits = 0, miss = 0, score = 0;
+let combo = 0;
+let reactions = [];
+let difficulty = 'easy';
+let lastSpawn = 0;
+
+const settings = {
+  easy: { size: 40, speed: 0.4, spawn: 1200 },
+  medium: { size: 26, speed: 0.7, spawn: 900 },
+  hard: { size: 18, speed: 1.1, spawn: 650 }
+};
+
+function spawnTarget() {
+  const s = settings[difficulty];
+  target = {
+    x: Math.random() * (canvas.width - s.size * 2) + s.size,
+    y: Math.random() * (canvas.height - s.size * 2) + s.size,
+    r: s.size,
+    vx: (Math.random() - 0.5) * s.speed,
+    vy: (Math.random() - 0.5) * s.speed,
+    born: performance.now()
+  };
+}
+
+function update(dt) {
+  if (!target) return;
+  target.x += target.vx * dt;
+  target.y += target.vy * dt;
+  if (target.x < target.r || target.x > canvas.width - target.r) target.vx *= -1;
+  if (target.y < target.r || target.y > canvas.height - target.r) target.vy *= -1;
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if (!target) return;
+  ctx.beginPath();
+  ctx.arc(target.x, target.y, target.r, 0, Math.PI*2);
+  ctx.fillStyle = '#ef4444'; ctx.fill();
+  ctx.beginPath();
+  ctx.arc(target.x, target.y, target.r*0.4, 0, Math.PI*2);
+  ctx.fillStyle = '#fff'; ctx.fill();
+}
+
+let last = performance.now();
+function loop(now) {
+  if (!running) return;
+  const dt = now - last; last = now;
+  remaining -= dt/1000;
+  document.getElementById('time').textContent = remaining.toFixed(1);
+  if (remaining <= 0) { running = false; target = null; return; }
+  if (!target || now - lastSpawn > settings[difficulty].spawn) {
+    spawnTarget(); lastSpawn = now;
+  }
+  update(dt); draw(); requestAnimationFrame(loop);
+}
+
+canvas.addEventListener('mousedown', e => {
+  if (!running || !target) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const dx = x - target.x;
+  const dy = y - target.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+
+  if (dist <= target.r) {
+    hits++; combo++;
+    const rt = performance.now() - target.born;
+    reactions.push(rt);
+    score += Math.floor(100/ (rt/1000)) + combo * 2;
+    spawnTarget(); lastSpawn = performance.now();
+  } else {
+    miss++; combo = 0; score -= 5;
+  }
+
+  const total = hits + miss;
+  document.getElementById('hits').textContent = hits;
+  document.getElementById('miss').textContent = miss;
+  document.getElementById('combo').textContent = combo;
+  document.getElementById('score').textContent = score;
+  document.getElementById('acc').textContent = total ? ((hits/total)*100).toFixed(1) : 0;
+  document.getElementById('apm').textContent = Math.round((hits / ((totalTime-remaining)/60)) || 0);
+  document.getElementById('rt').textContent = reactions.length ? Math.round(reactions.reduce((a,b)=>a+b)/reactions.length) : 0;
+});
+
+document.getElementById('start').onclick = () => {
+  difficulty = document.getElementById('difficulty').value;
+  totalTime = parseInt(document.getElementById('mode').value);
+  remaining = totalTime;
+  hits = miss = score = combo = 0;
+  reactions = [];
+  running = true;
+  target = null; lastSpawn = 0; last = performance.now();
+  requestAnimationFrame(loop);
+};
+</script>
+</body>
+</html>
