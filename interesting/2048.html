@@ -868,7 +868,6 @@
                     return moved;
                 }
 
-                // 检查游戏状态
                 checkGameStatus() {
                     // 检查是否达到2048
                     if (!this.won) {
@@ -954,7 +953,6 @@
                         try {
                             localStorage.setItem('bestScore', String(this.bestScore));
                         } catch (err) {
-                            // 忽略存储异常（例如隐私模式）
                         }
                     }
 
