@@ -1,0 +1,112 @@
+/* src/assets/css/3Dcard.css */
+
+/* 3D卡片容器 */
+.stats-card-container {
+  position: relative;
+  width: 100%;
+  height: 55%;
+  min-height: 150px;
+  transition: 200ms;
+  perspective: 800px;
+  --rotate-x: 0deg; /* 初始角度 */
+  --rotate-y: 0deg;
+  will-change: transform;
+}
+
+.stats-card-container:active {
+  transform: scale(0.98);
+}
+
+/* 卡片样式 */
+.card {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  transition: 
+    transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28),
+    filter 0.3s ease,
+    box-shadow 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* 统一仪表盘四块主卡片主题色样式 */
+.stats-card,
+.progress-card,
+.factory-card,
+.abnormal-card {
+  /* 变浅：降低不透明度 + 提升高光 + 更柔和蓝色梯度 */
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,0.55), rgba(255,255,255,0) 60%),
+    linear-gradient(135deg, rgba(125,170,255,0.55) 0%, rgba(95,150,250,0.55) 45%, rgba(69,114,217,0.55) 100%);
+  border: 1px solid rgba(255,255,255,0.35);
+  box-shadow:
+    0 6px 14px -4px rgba(40,90,180,0.25),
+    0 2px 6px rgba(40,70,140,0.15),
+    inset 0 0 0 1px rgba(255,255,255,0.25),
+    inset 0 0 26px -2px rgba(255,255,255,0.18);
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+}
+
+/* 悬停：轻微提亮与加饱和度 */
+.stats-card-container:hover .stats-card,
+.stats-card-container:hover .progress-card,
+.stats-card-container:hover .factory-card,
+.stats-card-container:hover .abnormal-card {
+  filter: brightness(1.25) saturate(1.18);
+  box-shadow:
+    0 14px 30px -6px rgba(60,110,200,0.30),
+    0 4px 10px rgba(50,90,180,0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.30),
+    inset 0 0 40px -4px rgba(255,255,255,0.25);
+}
+
+.card::before {
+  content: '';
+  filter: blur(2rem);
+  opacity: 40%; 
+  background: inherit;
+  filter: blur(2rem);
+  opacity: 30%;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: -1;
+  transition: 200ms;
+}
+
+/* 增强卡片悬停效果 */
+/* 容器 hover 触发 3D，角度由变量驱动 */
+.stats-card-container:hover .card {
+  transform:
+    perspective(800px)
+    rotateX(var(--rotate-x))
+    rotateY(var(--rotate-y))
+    translateZ(22px);
+  box-shadow: 0 22px 46px rgba(0,0,0,0.28);
+  filter: brightness(1.15) saturate(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stats-card-container:hover .card { transform: none; }
+}
+
+/* 标题样式 */
+.card .title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  transition: opacity 300ms ease-in-out;
+  opacity: 0.9;
+}
+
+

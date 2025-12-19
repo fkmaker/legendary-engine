@@ -1,0 +1,69 @@
+.Hovercard {
+  position: relative;
+  top: 1vh;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 108px;
+  height: auto;
+  background: rgb(128, 217, 255);
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #738a9f;
+  border-radius: 15px;
+  cursor: pointer;
+  padding: 12px 0;
+  box-sizing: border-box;
+  transition: box-shadow 0.3s;
+  box-shadow: 0 2px 8px rgba(80,120,200,0.10);
+  text-align: center;
+  word-break: break-all;
+  margin: 0 auto;
+}
+
+.Hovercard::before,
+.Hovercard::after {
+  position: absolute;
+  content: "";
+  width: 20%;
+  height: 20%;
+  background-color: #e6f3f6;
+  transition: all 0.5s;
+  z-index: 1;
+}
+
+.Hovercard::before {
+  top: 0;
+  right: 0;
+  border-radius: 0 15px 0 100%;
+}
+
+.Hovercard::after {
+  bottom: 0;
+  left: 0;
+  border-radius: 0 100% 0 15px;
+}
+
+.Hovercard:hover::before,
+.Hovercard:hover:after {
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  transition: all 0.5s;
+}
+
+.Hovercard:hover:after {
+  content: "—— 奇瑞智能AMR充电安全管理系统，以智慧管理实现充电过程全数据可视化，精准守护每一充安全与每一瓦能效，赋能安全环保生产。";
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  padding-left: 12px;
+  font-size: 1.1rem;
+  font-weight: normal;
+  height: 100%;
+  width: 95%;
+  white-space: pre-line;
+}

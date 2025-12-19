@@ -1,0 +1,28 @@
+{
+  "name": "charging-vision",
+  "private": true,
+  "version": "3.15.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.11.0",
+    "echarts": "^5.6.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.17",
+    "vue-echarts": "^6.2.3",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.0",
+    "naive-ui": "^2.42.0",
+    "vfonts": "^0.0.3",
+    "vite": "^7.0.4"
+  }
+}
