@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>FPS 检测</title>
+</head>
+<body>
+  <div id="fps" style="font-size: 24px; font-family: monospace;">FPS: --</div>
+
+  <script>
+    let lastTime = performance.now();
+    let frame = 0;
+    let fps = 0;
+
+    function loop(now) {
+      frame++;
+      const diff = now - lastTime;
+
+      // 每隔 1 秒统计一次 FPS
+      if (diff >= 1000) {
+        fps = Math.round((frame * 1000) / diff);
+        document.getElementById("fps").textContent = `FPS: ${fps}`;
+        frame = 0;
+        lastTime = now;
+      }
+
+      requestAnimationFrame(loop);
+    }
+
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
